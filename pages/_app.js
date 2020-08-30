@@ -3,35 +3,50 @@ import {
   CSSReset,
   Heading,
   Text,
-  Stack,
   Grid,
-  Box,
   Link,
+  Flex,
+  Box,
+  Stack,
 } from "@chakra-ui/core";
 import { theme } from "@chakra-ui/core";
 
 import { MDXProvider } from "@mdx-js/react";
 import ResumeItem from "../components/ResumeItem";
+import PageLink from "../components/PageLink";
 
 const sizes = ["xs", "sm", "lg", "xl", "2xl", "3xl"].reverse();
 const H = (level) => (props) => {
-  const titleProps =
-    level === 1
-      ? {
-          justifySelf: "center",
-        }
-      : {};
   return (
-    <Heading
+    <Stack
+      isInline
       marginY={10 / level}
-      backgroundImage="linear-gradient(0deg, #ffeeda 100%,transparent 50%)"
-      as={`h${level}`}
-      size={sizes[level]}
-      {...props}
-      {...titleProps}
+      justifyContent="space-between"
+      flexDirection={["column-reverse", "row", "row"]}
+      spacing={[20, 20, 20]}
     >
-      {props.children}
-    </Heading>
+      <Heading
+        size={sizes[level]}
+        {...props}
+        as={`h${level}`}
+        backgroundImage="linear-gradient(0deg, #ffeeda 100%,transparent 50%)"
+      >
+        {props.children}
+      </Heading>
+      {level === 1 && (
+        <Stack
+          marginY={2}
+          isInline
+          spacing={5}
+          alignItems="center"
+          fontSize={sizes[0]}
+        >
+          <PageLink href="/">Home</PageLink>
+          <PageLink href="/blog/first_one">Blog</PageLink>
+          <PageLink href="/tools">Tools</PageLink>
+        </Stack>
+      )}
+    </Stack>
   );
 };
 
@@ -70,14 +85,7 @@ const components = {
     </Text>
   ),
   li: ResumeItem,
-  a: (props) => (
-    <Link
-      {...props}
-      backgroundImage="linear-gradient(0deg, #f6e7f9 100%,transparent 50%)"
-    >
-      {props.children}
-    </Link>
-  ),
+  a: PageLink,
 };
 
 function MyApp({ Component, pageProps }) {
