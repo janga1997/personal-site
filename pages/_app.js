@@ -6,10 +6,12 @@ import {
   Stack,
   Grid,
   Box,
+  Link,
 } from "@chakra-ui/core";
 import { theme } from "@chakra-ui/core";
 
 import { MDXProvider } from "@mdx-js/react";
+import ResumeItem from "../components/ResumeItem";
 
 const sizes = ["xs", "sm", "lg", "xl", "2xl", "3xl"].reverse();
 const H = (level) => (props) => {
@@ -38,7 +40,7 @@ const components = {
     <Grid
       backgroundColor="#fafafa"
       paddingX={[5, 50, 100]}
-      paddingY={[5, 20, 50]}
+      paddingY={[0, 10, 50]}
       column={1}
       spacing={6}
     >
@@ -49,7 +51,7 @@ const components = {
   h2: H(2),
   h3: H(3),
   p: (props) => (
-    <Text fontSize="2xl" marginY={5}>
+    <Text fontSize="2xl" marginY={[3, 5, 5]}>
       {props.children}
     </Text>
   ),
@@ -67,10 +69,14 @@ const components = {
       {props.children}
     </Text>
   ),
-  li: (props) => (
-    <Text as="li" fontSize="2xl" marginY={2}>
+  li: ResumeItem,
+  a: (props) => (
+    <Link
+      {...props}
+      backgroundImage="linear-gradient(0deg, #f6e7f9 100%,transparent 50%)"
+    >
       {props.children}
-    </Text>
+    </Link>
   ),
 };
 
