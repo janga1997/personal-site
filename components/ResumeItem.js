@@ -4,7 +4,7 @@ export default function ResumeItem({ range, children }) {
   return (
     <Grid
       as="li"
-      templateColumns={["auto", "3fr 1fr", "3fr 1fr"]}
+      templateColumns={["1fr", "3fr 1fr", "3fr 1fr"]}
       fontSize="2xl"
       marginY={2}
     >
