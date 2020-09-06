@@ -1,5 +1,6 @@
 import { Heading, Stack, Grid } from "@chakra-ui/core";
 import PageLink from "./PageLink";
+import { forwardRef } from "react";
 
 const sizes = ["xs", "sm", "lg", "xl", "2xl", "3xl"].reverse();
 export const customHeading = (level) => (props) => {
@@ -7,7 +8,7 @@ export const customHeading = (level) => (props) => {
     <Stack
       isInline
       marginY={10 / level}
-      alignItems={["start", "center", "center"]}
+      alignItems={["start", "top", "center"]}
       justifyContent={["center", "space-between", "space-between"]}
       justifyContent={["start", "space-between", "space-between"]}
       flexDirection={["column-reverse", "row", "row"]}
@@ -37,8 +38,9 @@ export const customHeading = (level) => (props) => {
   );
 };
 
-export const Wrapper = (props) => (
+export const Wrapper = forwardRef((props, ref) => (
   <Grid
+    ref={ref}
     backgroundColor="#fafafa"
     paddingX={[5, 50, 100]}
     paddingY={[0, 10, 50]}
@@ -47,4 +49,4 @@ export const Wrapper = (props) => (
   >
     {props.children}
   </Grid>
-);
+));
