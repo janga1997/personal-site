@@ -73,7 +73,7 @@ const AssetItem = ({ item, path, breadth }) => {
       gridTemplateRows="minmax(auto, 1fr)"
     >
       <div>
-        <p contentEditable>{value}</p>
+        <p>{value}</p>
         <IconButton
           variantColor="teal"
           icon="small-add"
@@ -112,7 +112,7 @@ const AssetList = ({ item, depth }) => {
 
   return (
     <Stack textAlign="center">
-      {labels && <p contentEditable>{value}</p>}
+      {labels && <p>{value}</p>}
       <Grid
         ref={ref}
         flexGrow={1}

@@ -30,13 +30,13 @@ export const useDimensions = ({ liveMeasure = true }) => {
         );
       measure();
 
-      if (false) {
+      if (true) {
         window.addEventListener("resize", measure);
-        window.addEventListener("scroll", measure);
+        // window.addEventListener("scroll", measure);
 
         return () => {
           window.removeEventListener("resize", measure);
-          window.removeEventListener("scroll", measure);
+          // window.removeEventListener("scroll", measure);
         };
       }
     }
