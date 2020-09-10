@@ -1,9 +1,18 @@
 import { customHeading, Wrapper } from "../../components";
-import { Grid, Flex, IconButton, Stack, Checkbox } from "@chakra-ui/core";
+import {
+  Grid,
+  Flex,
+  IconButton,
+  Stack,
+  Checkbox,
+  Editable,
+  EditablePreview,
+  EditableInput,
+} from "@chakra-ui/core";
 
 import create from "zustand";
 import produce from "immer";
-import { set as setLodash } from "lodash";
+import { set as setLodash, unset, update, remove } from "lodash";
 import { useDimensions } from "../../utils";
 
 const immer = (config) => (set, get, api) =>
@@ -11,16 +20,21 @@ const immer = (config) => (set, get, api) =>
 
 const useStore = create(
   immer((set) => ({
-    items: [
-      {
-        value: "Debt",
-        weight: 0.2,
-      },
-      {
-        value: "Equity",
-        weight: 0.8,
-      },
-    ],
+    items: {
+      value: "Total Assets",
+      weight: 100,
+      children: [
+        {
+          value: "Debt",
+          weight: 20,
+        },
+        {
+          value: "Equity",
+          weight: 80,
+        },
+      ],
+    },
+
     labels: true,
     toggleLabels: () => set((state) => ({ labels: !state.labels })),
     addSibling: (path, breadth) => {
@@ -29,7 +43,7 @@ const useStore = create(
       set((state) => {
         setLodash(state.items, newPath, {
           value: "Dummy",
-          weight: 1,
+          weight: 10,
         });
       });
     },
@@ -39,8 +53,23 @@ const useStore = create(
       set((state) => {
         setLodash(state.items, newPath, {
           value: "Dummy",
-          weight: 1,
+          weight: 10,
         });
+      });
+    },
+    editProp: (path, value, prop) => {
+      set((state) => {
+        setLodash(state.items, path + `.${prop}`, value);
+      });
+    },
+    deleteItem: (path) => {
+      const newPath = path.slice(0, -3);
+      set((state) => {
+        unset(state.items, path);
+        update(state.items, newPath, remove);
+
+        console.log({ path, newPath });
+        // else remove(state.items, (x) => Boolean(x));
       });
     },
   }))
@@ -60,6 +89,8 @@ const AssetItem = ({ item, path, breadth }) => {
 
   const addSibling = useStore((state) => state.addSibling);
   const addChild = useStore((state) => state.addChild);
+  const editProp = useStore((state) => state.editProp);
+  const deleteItem = useStore((state) => state.deleteItem);
 
   return (
     <Grid
@@ -73,7 +104,20 @@ const AssetItem = ({ item, path, breadth }) => {
       gridTemplateRows="minmax(auto, 1fr)"
     >
       <div>
-        <p>{value}</p>
+        <Editable
+          value={value}
+          onChange={(value) => editProp(path, value, "value")}
+        >
+          <EditablePreview />
+          <EditableInput />
+        </Editable>
+        <Editable
+          value={weight}
+          onChange={(value) => editProp(path, value, "weight")}
+        >
+          <EditablePreview />
+          <EditableInput />
+        </Editable>
         <IconButton
           variantColor="teal"
           icon="small-add"
@@ -82,6 +126,11 @@ const AssetItem = ({ item, path, breadth }) => {
         <IconButton
           icon="add"
           onClick={() => addSibling(path, breadth)}
+        ></IconButton>
+        <IconButton
+          variantColor="red"
+          icon="delete"
+          onClick={() => deleteItem(path)}
         ></IconButton>
       </div>
     </Grid>
@@ -99,13 +148,13 @@ const AssetList = ({ item, depth }) => {
     height >= width
       ? {
           gridTemplateRows: `${children.reduce(
-            (a, { weight }) => a + ` minmax(auto, ${100 * weight}fr)`,
+            (a, { weight }) => a + ` minmax(auto, ${weight}fr)`,
             ""
           )}`,
         }
       : {
           gridTemplateColumns: `${children.reduce(
-            (a, { weight }) => a + ` minmax(auto, ${100 * weight}fr)`,
+            (a, { weight }) => a + ` minmax(auto, ${weight}fr)`,
             ""
           )}`,
         };
@@ -129,7 +178,7 @@ const AssetList = ({ item, depth }) => {
 };
 
 const constructListItem = (depth, breadth) => (item, index) => {
-  if (item.children) {
+  if (item.children?.length > 0) {
     const currDepth = depth + `[${index}].children`;
     return <AssetList key={index} depth={currDepth} item={item} />;
   } else {
@@ -140,14 +189,8 @@ const constructListItem = (depth, breadth) => (item, index) => {
 
 const AssetMap = () => {
   const items = useStore((state) => state.items);
-  console.log(items);
 
-  return (
-    <AssetList
-      item={{ value: "Total Assets", weight: 1, children: items }}
-      depth={""}
-    />
-  );
+  return <AssetList item={items} depth="children" />;
 };
 
 export default function Planner() {
