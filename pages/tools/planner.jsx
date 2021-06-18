@@ -27,6 +27,16 @@ const useStore = create(
         {
           value: "Debt",
           weight: 20,
+          children: [
+            {
+              value: "EPF",
+              weight: 20,
+            },
+            {
+              value: "Liquid Funds",
+              weight: 80,
+            },
+          ],
         },
         {
           value: "Equity",
@@ -67,9 +77,6 @@ const useStore = create(
       set((state) => {
         unset(state.items, path);
         update(state.items, newPath, remove);
-
-        console.log({ path, newPath });
-        // else remove(state.items, (x) => Boolean(x));
       });
     },
   }))
@@ -84,9 +91,10 @@ const H1 = customHeading(1);
 const H2 = customHeading(2);
 const H3 = customHeading(3);
 
-const AssetItem = ({ item, path, breadth }) => {
+const AssetItem = ({ item, path, breadth, leafWeight }) => {
   const { value, weight } = item;
 
+  const labels = useStore((state) => state.labels);
   const addSibling = useStore((state) => state.addSibling);
   const addChild = useStore((state) => state.addChild);
   const editProp = useStore((state) => state.editProp);
@@ -94,8 +102,8 @@ const AssetItem = ({ item, path, breadth }) => {
 
   return (
     <Grid
-      justifyItems="stretch"
-      alignItems="stretch"
+      alignItems="center"
+      placeContent="stretch"
       backgroundColor={weight === 0 ? "red.200" : "green.200"}
       fontWeight="600"
       fontSize="xl"
@@ -112,32 +120,37 @@ const AssetItem = ({ item, path, breadth }) => {
           <EditableInput />
         </Editable>
         <Editable
-          value={weight}
+          value={labels ? weight : leafWeight}
           onChange={(value) => editProp(path, value, "weight")}
         >
           <EditablePreview />
           <EditableInput />
         </Editable>
-        <IconButton
-          variantColor="teal"
-          icon="small-add"
-          onClick={() => addChild(path)}
-        ></IconButton>
-        <IconButton
-          icon="add"
-          onClick={() => addSibling(path, breadth)}
-        ></IconButton>
-        <IconButton
-          variantColor="red"
-          icon="delete"
-          onClick={() => deleteItem(path)}
-        ></IconButton>
+
+        {labels && (
+          <>
+            <IconButton
+              variantColor="teal"
+              icon="small-add"
+              onClick={() => addChild(path)}
+            ></IconButton>
+            <IconButton
+              icon="add"
+              onClick={() => addSibling(path, breadth)}
+            ></IconButton>
+            <IconButton
+              variantColor="red"
+              icon="delete"
+              onClick={() => deleteItem(path)}
+            ></IconButton>
+          </>
+        )}
       </div>
     </Grid>
   );
 };
 
-const AssetList = ({ item, depth }) => {
+const AssetList = ({ item, depth, leafWeight }) => {
   const [ref, { width, height }] = useDimensions({});
 
   const labels = useStore((state) => state.labels);
@@ -171,29 +184,40 @@ const AssetList = ({ item, depth }) => {
         gap={2}
         {...orientProp}
       >
-        {children.map(constructListItem(depth, children.length))}
+        {children.map(constructListItem(depth, children.length, leafWeight))}
       </Grid>
     </Stack>
   );
 };
 
-const constructListItem = (depth, breadth) => (item, index) => {
+const constructListItem = (depth, breadth, leafWeight) => (item, index) => {
   if (item.children?.length > 0) {
     const currDepth = depth + `[${index}].children`;
-    return <AssetList key={index} depth={currDepth} item={item} />;
+    return (
+      <AssetList
+        key={index}
+        depth={currDepth}
+        item={item}
+        leafWeight={(leafWeight * item.weight) / 100}
+      />
+    );
   } else {
     const path = depth + `[${index}]`;
-    return <AssetItem path={path} breadth={breadth} key={index} item={item} />;
+    return (
+      <AssetItem
+        path={path}
+        breadth={breadth}
+        key={index}
+        item={item}
+        leafWeight={(leafWeight * item.weight) / 100}
+      />
+    );
   }
 };
 
-const AssetMap = () => {
+export default function Planner() {
   const items = useStore((state) => state.items);
 
-  return <AssetList item={items} depth="children" />;
-};
-
-export default function Planner() {
   const [labels, toggleLabels] = useStore((state) => [
     state.labels,
     state.toggleLabels,
@@ -209,7 +233,7 @@ export default function Planner() {
         gridTemplateRows="minmax(65vh, 1fr)"
         gridTemplateColumns="minmax(auto, 1fr)"
       >
-        <AssetMap />
+        <AssetList item={items} depth="children" leafWeight={100} />
       </Grid>
     </Wrapper>
   );

@@ -2,8 +2,14 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 
 import { Link as ChLink } from "@chakra-ui/core";
+import { ReactNode } from "react";
 
-export default function PageLink(props) {
+interface Props {
+  href: string;
+  children: ReactNode;
+}
+
+export default function PageLink(props: Props) {
   const { href } = props;
 
   const router = useRouter();

@@ -1,6 +1,12 @@
-import { Text, Grid, SimpleGrid } from "@chakra-ui/core";
+import { Text, Grid } from "@chakra-ui/core";
+import { ReactNode } from "react";
 
-export default function ResumeItem({ range, children }) {
+interface Props {
+  children?: ReactNode[];
+  range?: string;
+}
+
+const ResumeItem = ({ range, children }: Props) => {
   return (
     <Grid
       as="li"
@@ -8,7 +14,7 @@ export default function ResumeItem({ range, children }) {
       fontSize="2xl"
       marginY={2}
     >
-      {children.length === 1 ? children : <div>{children}</div>}
+      {children?.length === 1 ? children : <div>{children}</div>}
       <Text
         as="em"
         fontSize="xl"
@@ -20,4 +26,6 @@ export default function ResumeItem({ range, children }) {
       </Text>
     </Grid>
   );
-}
+};
+
+export default ResumeItem;
